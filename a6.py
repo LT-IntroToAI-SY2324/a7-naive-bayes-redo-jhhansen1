@@ -125,24 +125,43 @@ class BayesClassifier:
         
         # get a list of the individual tokens that occur in text
         tokens= self.tokenize(text)
-
+        print (tokens)
         # create some variables to store the positive and negative probability. since
         # we will be adding logs of probabilities, the initial values for the positive
         # and negative probabilities are set to 0
-        
+        pos_prob=0
+        neg_prob=0
 
         # get the sum of all of the frequencies of the features in each document class
         # (i.e. how many words occurred in all documents for the given class) - this
         # will be used in calculating the probability of each document class given each
         # individual feature
-        
-
+        num_pos_freqs=sum(self.pos_freqs.values())
+        num_neg_freqs=sum(self.neg_freqs.values())
+        print(num_pos_freqs)
+        print(num_neg_freqs)
         # for each token in the text, calculate the probability of it occurring in a
         # postive document and in a negative document and add the logs of those to the
         # running sums. when calculating the probabilities, always add 1 to the numerator
         # of each probability for add one smoothing (so that we never have a probability
         # of 0)
-
+        for word in tokens:
+            num_pos_appearences=1
+            if word in self.pos_freqs:
+                num_pos_appearences+=self.pos_freqs[word]
+            pos_prob+=math.log(num_pos_appearences/num_pos_freqs)
+            num_neg_appearences=1 
+            if word in self.neg_freqs:
+                num_neg_appearences+=self.neg_freqs[word]
+            neg_prob+=math.log(num_neg_appearences/num_neg_freqs)
+        print (f"Pos propability:  {pos_prob}")
+        print (f"neg propability:  {neg_prob}")
+        review="neutral"
+        if pos_prob>neg_prob:
+            review="positive"
+        elif neg_prob>pos_prob:
+            review="negative"
+        print (f"review is {review}")
 
         # for debugging purposes, it may help to print the overall positive and negative
         # probabilities
@@ -232,25 +251,28 @@ class BayesClassifier:
             words - list of tokens to update frequencies of
             freqs - dictionary of frequencies to update
         """
-        # TODO: your work here
-        pass  # remove this line once you've implemented this method
+        for word in words:
+            if word in freqs:
+                freqs[word] += 1
+            else: 
+                freqs[word] = 1
 
 
 if __name__ == "__main__":
     # uncomment the below lines once you've implemented `train` & `classify`
-     b = BayesClassifier()
-    # a_list_of_words = ["I", "really", "like", "this", "movie", ".", "I", "hope", \
-    #                    "you", "like", "it", "too"]
-    # a_dictionary = {}
-    # b.update_dict(a_list_of_words, a_dictionary)
-    # assert a_dictionary["I"] == 2, "update_dict test 1"
-    # assert a_dictionary["like"] == 2, "update_dict test 2"
-    # assert a_dictionary["really"] == 1, "update_dict test 3"
-    # assert a_dictionary["too"] == 1, "update_dict test 4"
-    # print("update_dict tests passed.")
+    b = BayesClassifier()
+    a_list_of_words = ["I", "really", "like", "this", "movie", ".", "I", "hope", \
+                       "you", "like", "it", "too"]
+    a_dictionary = {}
+    b.update_dict(a_list_of_words, a_dictionary)
+    assert a_dictionary["I"] == 2, "update_dict test 1"
+    assert a_dictionary["like"] == 2, "update_dict test 2"
+    assert a_dictionary["really"] == 1, "update_dict test 3"
+    assert a_dictionary["too"] == 1, "update_dict test 4"
+    print("update_dict tests passed.")
 
-    # pos_denominator = sum(b.pos_freqs.values())
-    # neg_denominator = sum(b.neg_freqs.values())
+    pos_denominator = sum(b.pos_freqs.values())
+    neg_denominator = sum(b.neg_freqs.values())
 
     # print("\nThese are the sums of values in the positive and negative dicitionaries.")
     # print(f"sum of positive word counts is: {pos_denominator}")
@@ -280,9 +302,9 @@ if __name__ == "__main__":
 
     # # uncomment the below lines once you've implemented `classify`
     # print("\nThe following should all be positive.")
-    # print(b.classify('I love computer science'))
+    print(b.classify('I love computer science'))
     # print(b.classify('this movie is fantastic'))
     # print("\nThe following should all be negative.")
     # print(b.classify('rainy days are the worst'))
     # print(b.classify('computer science is terrible'))
-pass
+    
